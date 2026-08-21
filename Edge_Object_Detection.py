@@ -17,8 +17,11 @@ def detectObjectsImage(image_path,model, classes):
             class_name = model.names[class_id]
             confidence = float(box.conf[0])
             bbox_coordinates = box.xyxy[0].tolist() # [xmin, ymin, xmax, ymax]
-            
+            inference_time = results[0].speed["inference"]
+
+            print(f"Inference Time: {inference_time:.1f} ms")
             print(f"Detected {class_name} ({class_id}) with {confidence:.2f} confidence at {bbox_coordinates}")
+
     cv2.imshow("YOLOv26 Detector", image)
 
 def detectObjectsVideo(source, model, classes):
@@ -53,11 +56,12 @@ def detectObjectsVideo(source, model, classes):
             latency_ms = (tr_end - tr_start) * 1000.0
             current_fps = 1.0 / (tr_end - tr_start) if (tr_end - tr_start) > 0 else 0.0
             fps_smooth = (alpha * fps_smooth) + ((1.0 - alpha) * current_fps)
+            fps_smooth = round(fps_smooth)
     
             # Display metrics on frame
             cv2.putText(
                 frame,
-                f"Latency: {latency_ms:.1f}ms | FPS: {fps_smooth:.1f}",
+                f"Latency: {latency_ms:.1f}ms | FPS: {fps_smooth}",
                 (20, 40),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.8,
@@ -68,6 +72,11 @@ def detectObjectsVideo(source, model, classes):
             for result in results:
                 annotated_frame = result.plot()
            
+            inference_time = results[0].speed["inference"]
+
+            print(f"Inference Time: {inference_time:.1f} ms")
+            print(f"Latency: {latency_ms:.1f} ms")
+            print(f"FPS: {fps_smooth} ")
 
             cv2.imshow("YOLOv26 Detector", annotated_frame)
     

@@ -22,8 +22,11 @@ def segmentImage(image_path,model, classes):
                 class_id = int(result.boxes.cls[i])
                 class_name = model.names[class_id]
                 confidence = float(result.boxes.conf[i])
+                inference_time = results[0].speed["inference"]
                 
+                print(f"Inference Time: {inference_time:.1f} ms")
                 print(f"Detected {class_name} ({confidence:.2f}) with polygon length: {len(polygon)}")
+
     cv2.imshow("YOLOv26 Segmentation", image)
 
 def segmentVideo(source, model, classes):
@@ -58,11 +61,12 @@ def segmentVideo(source, model, classes):
             latency_ms = (tr_end - tr_start) * 1000.0
             current_fps = 1.0 / (tr_end - tr_start) if (tr_end - tr_start) > 0 else 0.0
             fps_smooth = (alpha * fps_smooth) + ((1.0 - alpha) * current_fps)
+            fps_smooth = round(fps_smooth)
     
             # Display metrics on frame
             cv2.putText(
                 frame,
-                f"Latency: {latency_ms:.1f}ms | FPS: {fps_smooth:.1f}",
+                f"Latency: {latency_ms:.1f}ms | FPS: {fps_smooth}",
                 (20, 40),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.8,
@@ -73,6 +77,11 @@ def segmentVideo(source, model, classes):
             for result in results:
                 annotated_frame = result.plot()
            
+            inference_time = results[0].speed["inference"]
+            
+            print(f"Inference Time: {inference_time:.1f} ms")
+            print(f"Latency: {latency_ms:.1f} ms")
+            print(f"FPS: {fps_smooth} ")
 
             cv2.imshow("YOLOv26 Detector", annotated_frame)
     

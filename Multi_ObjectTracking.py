@@ -6,7 +6,7 @@ def multiObjectTracking():
 
     # Load an official or custom model
     #model = YOLO("yolo26n_ncnn_model")  
-    model = YOLO("models/yolo26n.pt")
+    model = YOLO("models/yolo26n_640.onnx")
     #model = YOLO("yolo26n-seg.pt")
 
     # 2. Setup video capture (using default webcam index 0)
@@ -44,6 +44,7 @@ def multiObjectTracking():
             conf=0.30,               
             verbose=False,
             task = 'detect',
+   
         )
 
         tr_end = time()
@@ -52,11 +53,12 @@ def multiObjectTracking():
         latency_ms = (tr_end - tr_start) * 1000.0
         current_fps = 1.0 / (tr_end - tr_start) if (tr_end - tr_start) > 0 else 0.0
         fps_smooth = (alpha * fps_smooth) + ((1.0 - alpha) * current_fps)
+        fps_smooth = round(fps_smooth)
 
         # Display metrics on frame
         cv2.putText(
             frame,
-            f"Latency: {latency_ms:.1f}ms | FPS: {fps_smooth:.1f}",
+            f"Latency: {latency_ms:.1f}ms | FPS: {fps_smooth}",
             (20, 40),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.8,
@@ -76,7 +78,15 @@ def multiObjectTracking():
                 item_name = "bird" if class_id == 14 else "No detection."
                 print(f"Active Track -> {item_name} (ID: {track_id})")
 
+        # Extract specific speed components (in ms)
         
+        inference_time = results[0].speed["inference"]
+
+        print(f"Inference Time: {inference_time:.1f} ms")
+        print(f"Latency: {latency_ms:.1f} ms")
+        print(f"FPS: {fps_smooth} ")
+        
+
         # 6. Display pipeline output
         cv2.imshow("YOLOv26 Tracker", annotated_frame)
 
