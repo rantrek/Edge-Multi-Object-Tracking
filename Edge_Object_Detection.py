@@ -32,8 +32,9 @@ def detectObjectsVideo(source, model, classes):
         alpha = 0.9  # Smoothing factor for rolling average
     
         cap = cv2.VideoCapture(source)
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 320)
+        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     
         if not cap.isOpened():
             print("Error: Could not open video source.")
@@ -42,43 +43,47 @@ def detectObjectsVideo(source, model, classes):
         print("Detecting... Press 'q' to exit.")
     
         while True:
-            #start time
-            tr_start = time()
+            
+
             ret, frame = cap.read()
             if not ret:
                 break
-    
-            results = model(source=frame, classes = classes, conf = 0.25, stream = True)
-    
-            tr_end = time()
-    
-             # Calculations for latency and fps
-            latency_ms = (tr_end - tr_start) * 1000.0
-            current_fps = 1.0 / (tr_end - tr_start) if (tr_end - tr_start) > 0 else 0.0
-            fps_smooth = (alpha * fps_smooth) + ((1.0 - alpha) * current_fps)
-            fps_smooth = round(fps_smooth)
-    
-            # Display metrics on frame
-            cv2.putText(
-                frame,
-                f"Latency: {latency_ms:.1f}ms | FPS: {fps_smooth}",
-                (20, 40),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.8,
-                (255, 0, 0),
-                2,
-            )
-            # 4. Generate annotated visual frame
-            for result in results:
-                annotated_frame = result.plot()
-           
-            inference_time = results[0].speed["inference"]
 
-            print(f"Inference Time: {inference_time:.1f} ms")
-            print(f"Latency: {latency_ms:.1f} ms")
+            results = model(source=frame, classes = classes, conf = 0.25, stream = True)
+            
+            #start time
+            tr_start = time()
+           
+            for result in results:
+                
+                tr_end = time()
+                
+                # Calculations for latency and fps
+                latency = (tr_end - tr_start) * 1000.0
+                fps = 1.0 / (tr_end - tr_start) if (tr_end - tr_start) > 0 else 0.0
+                fps_smooth = (alpha * fps_smooth) + ((1.0 - alpha) * fps)
+                fps_smooth = round(fps_smooth)
+ 
+
+                # Display metrics on frame
+                cv2.putText(
+                    frame,
+                    f"Latency: {latency:.1f}ms | FPS: {fps_smooth}",
+                    (20, 40),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.8,
+                    (255, 0, 0),
+                    2,
+                )
+
+                 # 4. Generate annotated visual frame
+                annotated_frame = result.plot()
+
+            
+            print(f"Latency: {latency:.1f} ms")
             print(f"FPS: {fps_smooth} ")
 
-            cv2.imshow("YOLOv26 Detector", annotated_frame)
+            cv2.imshow("YOLOv26 Detector", annotated_frame)               
     
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -89,11 +94,12 @@ def detectObjectsVideo(source, model, classes):
 def edgeObjectDetection(mode,source):
 
     # Load an official or custom model
-    #model = YOLO("yolo26n_ncnn_model")  
-    model = YOLO("yolo26n.pt")
+    #model = YOLO("models/yolo26n_ncnn_model")  
+    #model = YOLO("models/yolo26n_320.onnx")
+    model = YOLO("yolo26n_openvino_model") 
     
-    # COCO Class Mapping: 32 = sports ball, 67 = cell phone, 73 = book, 15 - bird
-    TARGET_CLASSES = [14]
+    # COCO Class Mapping: 32 = sports ball, 67 = cell phone, 73 = book, 14 - bird
+    TARGET_CLASSES = [67,73]
 
     if mode == 'image':
         detectObjectsImage(source, model, TARGET_CLASSES)
@@ -110,4 +116,4 @@ def edgeObjectDetection(mode,source):
 if __name__ == "__main__":
 
     path = "assets/IMG_0893.MOV" #image or video path (if not using webcam)
-    edgeObjectDetection(mode = 'video', source = path)
+    edgeObjectDetection(mode = 'video', source = 0)
