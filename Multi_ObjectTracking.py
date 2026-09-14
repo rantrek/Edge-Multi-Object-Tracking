@@ -1,15 +1,15 @@
 import cv2
 from ultralytics import YOLO
 from time import time
-#import os
-#os.environ["OMP_NUM_THREADS"] = "4"
+import os
+os.environ["OMP_NUM_THREADS"] = "4"
 
 def multiObjectTracking():
 
     # Load an official or custom model
     #model = YOLO("models/yolo26n_ncnn_model")  
     model = YOLO("models/yolo26n_openvino_model") 
-   #model = YOLO("models/yolo26n_320.onnx")
+    #model = YOLO("models/yolo26n_320.onnx")
     #model = YOLO("yolo26n-seg.pt")
 
     # 2. Setup video capture (using default webcam index 0)
