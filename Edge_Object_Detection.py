@@ -32,6 +32,7 @@ def detectObjectsVideo(source, model, classes):
         #Initializing variables for FPS
         fps_smooth = 0.0
         alpha = 0.9  # Smoothing factor for rolling average
+        latency = 0
     
         cap = cv2.VideoCapture(source)
         cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
@@ -46,29 +47,17 @@ def detectObjectsVideo(source, model, classes):
     
         while True:
             
+            #start time
+            tr_start = time()
 
             ret, frame = cap.read()
             if not ret:
                 break
 
             results = model(source=frame, classes = classes, conf = 0.25, stream = True)
-            
-            #start time
-            tr_start = time()
-           
-            for result in results:
-                
-                tr_end = time()
-                
-                # Calculations for latency and fps
-                latency = (tr_end - tr_start) * 1000.0
-                fps = 1.0 / (tr_end - tr_start) if (tr_end - tr_start) > 0 else 0.0
-                fps_smooth = (alpha * fps_smooth) + ((1.0 - alpha) * fps)
-                fps_smooth = round(fps_smooth)
- 
 
-                # Display metrics on frame
-                cv2.putText(
+              # Display metrics on frame
+            cv2.putText(
                     frame,
                     f"Latency: {latency:.1f}ms | FPS: {fps_smooth}",
                     (20, 40),
@@ -77,11 +66,21 @@ def detectObjectsVideo(source, model, classes):
                     (255, 0, 0),
                     2,
                 )
+           
+            for result in results:
+
 
                  # 4. Generate annotated visual frame
                 annotated_frame = result.plot()
 
-            
+                tr_end = time()
+                                
+                # Calculations for latency and fps
+                latency = (tr_end - tr_start) * 1000.0
+                fps = 1.0 / (tr_end - tr_start) if (tr_end - tr_start) > 0 else 0.0
+                fps_smooth = (alpha * fps_smooth) + ((1.0 - alpha) * fps)
+                fps_smooth = round(fps_smooth)
+
             print(f"Latency: {latency:.1f} ms")
             print(f"FPS: {fps_smooth} ")
 
@@ -117,5 +116,5 @@ def edgeObjectDetection(mode,source):
     
 if __name__ == "__main__":
 
-    path = "assets/IMG_0893.MOV" #image or video path (if not using webcam)
+    path = "assets/IMG_0895.MOV" #image or video path (if not using webcam)
     edgeObjectDetection(mode = 'video', source = 0)
