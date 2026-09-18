@@ -7,7 +7,7 @@ os.environ["OMP_NUM_THREADS"] = "4"
 def multiObjectTracking():
 
     # Load an official or custom model
-    #model = YOLO("models/yolo26n_ncnn_model")  
+    #model = YOLO("models/yolo26n.pt")  
     model = YOLO("models/yolo26n_openvino_model") 
     #model = YOLO("models/yolo26n_320.onnx")
     
@@ -110,7 +110,7 @@ def multiObjectTracking():
         
 
         # 6. Display pipeline output
-        cv2.imshow("YOLOv26 Tracker", annotated_frame)
+        #cv2.imshow("YOLOv26 Tracker", annotated_frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
