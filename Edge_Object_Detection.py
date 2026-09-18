@@ -33,6 +33,9 @@ def detectObjectsVideo(source, model, classes):
         fps_smooth = 0.0
         alpha = 0.9  # Smoothing factor for rolling average
         latency = 0
+        frame_count = 0
+        skip_stride = 3
+        results = None
     
         cap = cv2.VideoCapture(source)
         cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
@@ -54,9 +57,7 @@ def detectObjectsVideo(source, model, classes):
             if not ret:
                 break
 
-            results = model(source=frame, classes = classes, conf = 0.25, stream = True)
-
-              # Display metrics on frame
+            # Display metrics on frame
             cv2.putText(
                     frame,
                     f"Latency: {latency:.1f}ms | FPS: {fps_smooth}",
@@ -66,20 +67,33 @@ def detectObjectsVideo(source, model, classes):
                     (255, 0, 0),
                     2,
                 )
-           
-            for result in results:
 
+            if frame_count % skip_stride == 0:
 
-                 # 4. Generate annotated visual frame
-                annotated_frame = result.plot()
+                results = model(source=frame, classes = classes, conf = 0.25, stream = True)
 
-                tr_end = time()
+            if results is not None:
+                for result in results:
+                    #Generate annotated visual frame
+                    annotated_frame = result.plot()
+                    print(f"Frame ID: {frame_count}") #print frame ID for detected frames
+
+                    #Extract the inference time
+                    inference_time = result.speed["inference"]
+                    print(f"Inference Time: {inference_time:.1f} ms")
+
+            else:
+                annotated_frame = frame
+
+            frame_count+=1
+
+            tr_end = time()
                                 
-                # Calculations for latency and fps
-                latency = (tr_end - tr_start) * 1000.0
-                fps = 1.0 / (tr_end - tr_start) if (tr_end - tr_start) > 0 else 0.0
-                fps_smooth = (alpha * fps_smooth) + ((1.0 - alpha) * fps)
-                fps_smooth = round(fps_smooth)
+            # Calculations for latency and fps
+            latency = (tr_end - tr_start) * 1000.0
+            fps = 1.0 / (tr_end - tr_start) if (tr_end - tr_start) > 0 else 0.0
+            fps_smooth = (alpha * fps_smooth) + ((1.0 - alpha) * fps)
+            fps_smooth = round(fps_smooth)
 
             print(f"Latency: {latency:.1f} ms")
             print(f"FPS: {fps_smooth} ")
@@ -100,7 +114,7 @@ def edgeObjectDetection(mode,source):
     model = YOLO("models/yolo26n_openvino_model") 
     
     # COCO Class Mapping: 32 = sports ball, 67 = cell phone, 73 = book, 14 - bird
-    TARGET_CLASSES = [67,73]
+    TARGET_CLASSES = [14, 67,73]
 
     if mode == 'image':
         detectObjectsImage(source, model, TARGET_CLASSES)
@@ -111,10 +125,9 @@ def edgeObjectDetection(mode,source):
     else:
         print("Error! No choice inputted for mode")
 
-
-
-    
+   
 if __name__ == "__main__":
 
     path = "assets/IMG_0895.MOV" #image or video path (if not using webcam)
-    edgeObjectDetection(mode = 'video', source = 0)
+    #path = 0 #if using webcam
+    edgeObjectDetection(mode = 'video', source = path)

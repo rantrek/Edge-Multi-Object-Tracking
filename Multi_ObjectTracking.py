@@ -11,7 +11,7 @@ def multiObjectTracking():
     model = YOLO("models/yolo26n_openvino_model") 
     #model = YOLO("models/yolo26n_320.onnx")
     
-    # Setup video capture (using default webcam index 0)
+    # Setup video capture 
     cap = cv2.VideoCapture("assets/IMG_0895.MOV")
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 320)
@@ -24,7 +24,7 @@ def multiObjectTracking():
     alpha = 0.9  # Smoothing factor for rolling average
     latency_ms = 0.0
     frame_count = 0
-    skip_frames = 3
+    skip_stride = 3 #Detect every 3rd frame
     results = None
 
     # COCO Class Mapping: 32 = sports ball, 67 = cell phone, 73 = book, 14 - bird
@@ -53,11 +53,11 @@ def multiObjectTracking():
                     2,
                 )
 
-        frame_count+=1
+        
 
         # Apply Multi-Tracking with strict class filtering
         # The 'classes' parameter guarantees the model discards other detected elements instantly
-        if frame_count % (skip_frames + 1) == 0:
+        if frame_count % skip_stride == 0:
 
             results = model.track(
                 source=frame, 
@@ -71,13 +71,13 @@ def multiObjectTracking():
     
             )
 
-    
         # Generate annotated visual frame
         if results is not None: 
             for result in results:
 
                 annotated_frame = result.plot()
-                
+                print(f"Frame ID: {frame_count}") #print frame ID for detected frames
+
                 # Extract specific tracking data for your filtered items
                 if result.boxes.id is not None:
                     track_ids = result.boxes.id.int().cpu().tolist()
@@ -95,6 +95,8 @@ def multiObjectTracking():
             annotated_frame = frame
 
         
+        frame_count+=1
+
         tr_end = time()
                             
         # Calculations for latency and fps 
