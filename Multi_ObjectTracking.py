@@ -13,6 +13,7 @@ def multiObjectTracking():
     
     # Setup video capture 
     cap = cv2.VideoCapture("assets/IMG_0895.MOV")
+    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 320)
 
@@ -54,7 +55,7 @@ def multiObjectTracking():
                 )
 
         
-
+        frame_count+=1
         # Apply Multi-Tracking with strict class filtering
         # The 'classes' parameter guarantees the model discards other detected elements instantly
         if frame_count % skip_stride == 0:
@@ -91,23 +92,20 @@ def multiObjectTracking():
                 #Extract the inference time
                 inference_time = result.speed["inference"]
                 print(f"Inference Time: {inference_time:.1f} ms")
+
+                tr_end = time()
+                                            
+                # Calculations for latency and fps 
+                latency_ms = (tr_end - tr_start) * 1000.0
+                fps = 1.0 / (tr_end - tr_start) if (tr_end - tr_start) > 0 else 0.0
+                fps_smooth = (alpha * fps_smooth) + ((1.0 - alpha) * fps)
+                fps_smooth = round(fps_smooth)
+                
+                print(f"Latency: {latency_ms:.1f} ms")
+                print(f"FPS: {fps_smooth} ")
         else:
             annotated_frame = frame
 
-        
-        frame_count+=1
-
-        tr_end = time()
-                            
-        # Calculations for latency and fps 
-        latency_ms = (tr_end - tr_start) * 1000.0
-        fps = 1.0 / (tr_end - tr_start) if (tr_end - tr_start) > 0 else 0.0
-        fps_smooth = (alpha * fps_smooth) + ((1.0 - alpha) * fps)
-        fps_smooth = round(fps_smooth)
-        
-        print(f"Latency: {latency_ms:.1f} ms")
-        print(f"FPS: {fps_smooth} ")
-        
 
         # 6. Display pipeline output
         #cv2.imshow("YOLOv26 Tracker", annotated_frame)
