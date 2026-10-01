@@ -19,6 +19,7 @@ The code was developed in Python 3.13.6. There are three python files:
 1) Multi_ObjectTracking.py - tracks multiple objects across video frames, using YOLOv26 to detect the objects and ByteTrack to track them.
 2) Edge_ObjectDetection.py - Detects objects in images and videos (saved files and real-time).
 3) Edge_instance_segmentation.py - Detects and segments objects in images and videos (saved files and real-time).
+4) Vision_tasks.py - Contains the helper functions needed to run the pipelines. 
 
 ## Techniques
 
@@ -38,4 +39,5 @@ The code was developed in Python 3.13.6. There are three python files:
 
    - OpenCV
    - Ultralytics
+   - OpenVINO
 
