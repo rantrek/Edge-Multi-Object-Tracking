@@ -14,7 +14,7 @@ Performance results for tracking and detecting using raspberry pi.
 |yolov26n openvino  | 320 px    | 68-70 ms         | 13-15| 
 |yolov26n onnx      | 320 px    | ~100 ms          | 9-10 | 
 
-The metrics provided above are only for model inferences on saved videos of birds. This project is still a work in progress and I plan to test model implementation for real-time streaming and more saved videos. 
+The metrics provided above are only for model inferences on saved videos of birds. This project is still a work in progress and I plan to test model on real-time streaming and more saved videos. 
 
 ## Hardware 
 
