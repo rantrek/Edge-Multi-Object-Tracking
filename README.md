@@ -28,6 +28,7 @@ The code was developed in Python 3.13.6. There are three python files:
 2) Edge_ObjectDetection.py - Detects objects in images and videos (saved files and real-time).
 3) Edge_instance_segmentation.py - Detects and segments objects in images and videos (saved files and real-time).
 4) Vision_tasks.py - Contains the helper functions needed to run the pipelines. 
+5) export yolo model.py - exports PyTorch yolo model to another format such as openvino or onnx.
 
 ## Techniques
 
