@@ -30,6 +30,24 @@ The code was developed in Python 3.13.6. There are three python files:
 4) Vision_tasks.py - Contains the helper functions needed to run the pipelines. 
 5) export yolo model.py - exports PyTorch yolo model to another format such as openvino or onnx.
 
+## Setup
+
+Python version: 3.13.6
+
+With the standard library:
+
+```
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+With [uv](https://docs.astral.sh/uv/):
+
+```
+uv venv or uv venv your-custom-env-name
+uv pip install -r requirements.txt
+
 ## Techniques
 
    - Image/video processing
